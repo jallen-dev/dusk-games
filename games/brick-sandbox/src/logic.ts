@@ -1,13 +1,20 @@
 import type { PlayerId, DuskClient } from "dusk-games-sdk/multiplayer"
 
-export type Cells = (PlayerId | null)[]
-export interface GameState {
-  playerIds: PlayerId[]
+type Brick = {
+  color: string
   position: [number, number, number]
 }
 
+export interface GameState {
+  playerIds: PlayerId[]
+  bricks: Record<string, Brick>
+}
+
 type GameActions = {
-  setPosition: (position: [number, number, number]) => void
+  setPosition: (args: {
+    brickId: string
+    position: [number, number, number]
+  }) => void
 }
 
 declare global {
@@ -19,11 +26,14 @@ Dusk.initLogic({
   maxPlayers: 2,
   setup: (allPlayerIds) => ({
     playerIds: allPlayerIds,
-    position: [0, 0, 0],
+    bricks: {
+      0: { position: [-2, 0, 0], color: "red" },
+      1: { position: [1, 0, 0], color: "yellow" },
+    },
   }),
   actions: {
-    setPosition: (position, { game }) => {
-      game.position = position
+    setPosition: ({ brickId, position }, { game }) => {
+      game.bricks[brickId].position = position
     },
   },
 })

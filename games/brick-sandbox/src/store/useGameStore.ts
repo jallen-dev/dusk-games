@@ -16,7 +16,7 @@ export const useGameStore = create<State>()(
     subscribeWithSelector((set, get) => ({
       game: {
         playerIds: [],
-        position: [0, 0, 0],
+        bricks: {},
       },
     }))
   )

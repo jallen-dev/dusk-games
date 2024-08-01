@@ -21,13 +21,10 @@ type GLTFResult = GLTF & {
 export function Model(
   props: JSX.IntrinsicElements["group"] & { color?: string }
 ) {
-  const { nodes, materials } = useGLTF("/round-lq-brick-2x2.glb") as GLTFResult
+  const { nodes } = useGLTF("/round-lq-brick-2x2.glb") as GLTFResult
   return (
     <group {...props} dispose={null}>
-      <mesh
-        geometry={nodes["round-lq-brick-2x2_1"].geometry}
-        material={materials.colormap}
-      >
+      <mesh geometry={nodes["round-lq-brick-2x2_1"].geometry}>
         <meshStandardMaterial color={props.color ?? "yellow"} />
       </mesh>
     </group>

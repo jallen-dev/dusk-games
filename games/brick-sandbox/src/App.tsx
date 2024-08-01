@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { memo, useEffect, useState } from "react"
 
 import { Canvas } from "@react-three/fiber"
 import { Grid, OrbitControls, PivotControls } from "@react-three/drei"
@@ -19,10 +19,7 @@ function App() {
 
   return (
     <Canvas camera={{ position: [4, 4, 4] }}>
-      <Model scale={12.6} color="red"></Model>
-      <Movable>
-        <Model scale={12.61}></Model>
-      </Movable>
+      <Bricks />
       <OrbitControls enabled={false} />
       <Grid infiniteGrid cellSize={1} />
       <ambientLight intensity={0.25} />
@@ -31,27 +28,45 @@ function App() {
   )
 }
 
+function Bricks() {
+  const brickIds = useGameStore((state) => Object.keys(state.game.bricks))
+
+  return (
+    <>
+      {brickIds.map((brickId) => (
+        <Brick key={brickId} brickId={brickId} />
+      ))}
+    </>
+  )
+}
+
 export default App
 
-const oldPosition = new THREE.Vector3()
-const newPosition = new THREE.Vector3()
-
-function Movable(props) {
+const Brick = memo(function Brick({ brickId }: { brickId: string }) {
   const [dragged, setDragged] = useState(false)
   const [active, setActive] = useState(false)
   const start = () => setDragged(true)
   const end = () => setDragged(false)
   const missed = () => !dragged && setActive(false)
   const [matrix] = useState(() => new THREE.Matrix4())
+  const [oldPosition] = useState(() => new THREE.Vector3())
+  const [newPosition] = useState(() => new THREE.Vector3())
 
-  useGameStore.subscribe(
-    (state) => state.game.position,
-    (position) => {
-      matrix.setPosition(
-        new THREE.Vector3(position[0], position[1] * 1.21, position[2])
-      )
-    }
-  )
+  const color = useGameStore((state) => state.game.bricks[brickId].color)
+
+  useEffect(() => {
+    const unsubscribe = useGameStore.subscribe(
+      (state) => state.game.bricks[brickId]?.position,
+      (position) => {
+        matrix.setPosition(
+          new THREE.Vector3(position[0], position[1] * 1.21, position[2])
+        )
+      },
+      { fireImmediately: true }
+    )
+
+    return unsubscribe
+  }, [brickId, matrix])
   return (
     <PivotControls
       disableScaling
@@ -66,23 +81,24 @@ function Movable(props) {
         newPosition.setFromMatrixPosition(m)
         newPosition.round()
         if (!oldPosition.equals(newPosition)) {
-          Dusk.actions.setPosition([
-            newPosition.x,
-            newPosition.y,
-            newPosition.z,
-          ])
+          Dusk.actions.setPosition({
+            brickId,
+            position: [newPosition.x, newPosition.y, newPosition.z],
+          })
         }
       }, 100)}
       onPointerMissed={missed}
       depthTest={false}
       axisColors={["#bb726f", "#6c9d8d", "#8c83d3"]}
-      scale={1}
+      scale={2}
       anchor={[0, -1, 0]}
     >
-      <group onClick={() => !dragged && setActive(!active)} {...props} />
+      <group onClick={() => !dragged && setActive(!active)}>
+        <Model scale={12.6} color={color} />
+      </group>
     </PivotControls>
   )
-}
+})
 
 const throttle = (fn: Function, wait: number = 300) => {
   let inThrottle: boolean,
