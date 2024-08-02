@@ -3,6 +3,7 @@ import type { PlayerId, DuskClient } from "dusk-games-sdk/multiplayer"
 type Brick = {
   color: string
   position: [number, number, number]
+  controlledBy?: PlayerId
 }
 
 export interface GameState {
@@ -15,6 +16,8 @@ type GameActions = {
     brickId: string
     position: [number, number, number]
   }) => void
+  selectBrick: (args: { brickId: string }) => void
+  deselectBrick: (args: { brickId: string }) => void
 }
 
 declare global {
@@ -34,6 +37,14 @@ Dusk.initLogic({
   actions: {
     setPosition: ({ brickId, position }, { game }) => {
       game.bricks[brickId].position = position
+    },
+    selectBrick: ({ brickId }, { game, playerId }) => {
+      game.bricks[brickId].controlledBy = playerId
+    },
+    deselectBrick: ({ brickId }, { game, playerId }) => {
+      if (game.bricks[brickId].controlledBy === playerId) {
+        delete game.bricks[brickId].controlledBy
+      }
     },
   },
 })

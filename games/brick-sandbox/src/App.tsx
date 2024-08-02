@@ -1,12 +1,13 @@
 import { memo, useEffect, useState } from "react"
 
 import { Canvas } from "@react-three/fiber"
-import { Grid, OrbitControls, PivotControls } from "@react-three/drei"
+import { Grid, Html, OrbitControls, PivotControls } from "@react-three/drei"
 
 import * as THREE from "three"
 import { useGameStore } from "./store/useGameStore.ts"
 
 import { Model } from "@/bricks/Round-lq-brick-2x2.tsx"
+import { Avatar } from "./components/Avatar.tsx"
 
 function App() {
   useEffect(() => {
@@ -20,7 +21,7 @@ function App() {
   return (
     <Canvas camera={{ position: [4, 4, 4] }}>
       <Bricks />
-      <OrbitControls enabled={false} />
+      <OrbitControls enabled={true} makeDefault />
       <Grid infiniteGrid cellSize={1} />
       <ambientLight intensity={0.25} />
       <directionalLight position={[0, 10, 5]} intensity={1} />
@@ -47,12 +48,23 @@ const Brick = memo(function Brick({ brickId }: { brickId: string }) {
   const [active, setActive] = useState(false)
   const start = () => setDragged(true)
   const end = () => setDragged(false)
-  const missed = () => !dragged && setActive(false)
+  const missed = () => {
+    if (dragged) {
+      return
+    }
+    Dusk.actions.deselectBrick({ brickId })
+    setActive(false)
+  }
   const [matrix] = useState(() => new THREE.Matrix4())
   const [oldPosition] = useState(() => new THREE.Vector3())
   const [newPosition] = useState(() => new THREE.Vector3())
 
+  const yourPlayerId = useGameStore((state) => state.yourPlayerId)
+
   const color = useGameStore((state) => state.game.bricks[brickId].color)
+  const controlledBy = useGameStore(
+    (state) => state.game.bricks[brickId].controlledBy
+  )
 
   useEffect(() => {
     const unsubscribe = useGameStore.subscribe(
@@ -93,9 +105,27 @@ const Brick = memo(function Brick({ brickId }: { brickId: string }) {
       scale={2}
       anchor={[0, -1, 0]}
     >
-      <group onClick={() => !dragged && setActive(!active)}>
+      <group
+        onClick={() => {
+          if (dragged) {
+            return
+          }
+
+          if (active) {
+            Dusk.actions.deselectBrick({ brickId })
+          } else {
+            Dusk.actions.selectBrick({ brickId })
+          }
+          setActive(!active)
+        }}
+      >
         <Model scale={12.6} color={color} />
       </group>
+      {controlledBy && controlledBy !== yourPlayerId && (
+        <Html className="w-16">
+          <Avatar playerId={controlledBy} />
+        </Html>
+      )}
     </PivotControls>
   )
 })
