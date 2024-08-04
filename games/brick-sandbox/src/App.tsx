@@ -6,8 +6,9 @@ import { Grid, Html, OrbitControls, PivotControls } from "@react-three/drei"
 import * as THREE from "three"
 import { useGameStore } from "./store/useGameStore.ts"
 
-import { Model } from "@/bricks/Round-lq-brick-2x2.tsx"
+import { Brick as BrickModel } from "@/components/Brick.tsx"
 import { Avatar } from "./components/Avatar.tsx"
+import { BrickList } from "./components/BrickList.tsx"
 
 function App() {
   useEffect(() => {
@@ -19,13 +20,16 @@ function App() {
   }, [])
 
   return (
-    <Canvas camera={{ position: [4, 4, 4] }}>
-      <Bricks />
-      <OrbitControls enabled={true} makeDefault />
-      <Grid infiniteGrid cellSize={1} />
-      <ambientLight intensity={0.25} />
-      <directionalLight position={[0, 10, 5]} intensity={1} />
-    </Canvas>
+    <>
+      <Canvas camera={{ position: [4, 4, 4] }}>
+        <Bricks />
+        <OrbitControls enabled={true} makeDefault />
+        <Grid infiniteGrid cellSize={1} />
+        <ambientLight intensity={0.25} />
+        <directionalLight position={[0, 10, 5]} intensity={1} />
+      </Canvas>
+      <BrickList />
+    </>
   )
 }
 
@@ -62,6 +66,7 @@ const Brick = memo(function Brick({ brickId }: { brickId: string }) {
   const yourPlayerId = useGameStore((state) => state.yourPlayerId)
 
   const color = useGameStore((state) => state.game.bricks[brickId].color)
+  const brickType = useGameStore((state) => state.game.bricks[brickId].type)
   const controlledBy = useGameStore(
     (state) => state.game.bricks[brickId].controlledBy
   )
@@ -88,9 +93,9 @@ const Brick = memo(function Brick({ brickId }: { brickId: string }) {
       enabled={active}
       onDragStart={start}
       onDragEnd={end}
-      onDrag={throttle((m) => {
-        oldPosition.setFromMatrixPosition(m)
-        newPosition.setFromMatrixPosition(m)
+      onDrag={throttle((draggedMatrix) => {
+        oldPosition.setFromMatrixPosition(matrix)
+        newPosition.setFromMatrixPosition(draggedMatrix)
         newPosition.round()
         if (!oldPosition.equals(newPosition)) {
           Dusk.actions.setPosition({
@@ -119,7 +124,7 @@ const Brick = memo(function Brick({ brickId }: { brickId: string }) {
           setActive(!active)
         }}
       >
-        <Model scale={12.6} color={color} />
+        <BrickModel scale={12.6} color={color} brickType={brickType} />
       </group>
       {controlledBy && controlledBy !== yourPlayerId && (
         <Html className="w-16">

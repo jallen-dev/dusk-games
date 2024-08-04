@@ -1,8 +1,10 @@
 import type { PlayerId, DuskClient } from "dusk-games-sdk/multiplayer"
+import { BrickType } from "./types"
 
 type Brick = {
   color: string
   position: [number, number, number]
+  type: BrickType
   controlledBy?: PlayerId
 }
 
@@ -18,6 +20,7 @@ type GameActions = {
   }) => void
   selectBrick: (args: { brickId: string }) => void
   deselectBrick: (args: { brickId: string }) => void
+  addBrick: (args: { brickType: BrickType }) => void
 }
 
 declare global {
@@ -30,8 +33,16 @@ Dusk.initLogic({
   setup: (allPlayerIds) => ({
     playerIds: allPlayerIds,
     bricks: {
-      0: { position: [-2, 0, 0], color: "red" },
-      1: { position: [1, 0, 0], color: "yellow" },
+      0: {
+        position: [-2, 0, 0],
+        color: "red",
+        type: BrickType.RoundBrick2x2,
+      },
+      1: {
+        position: [1, 0, 0],
+        color: "yellow",
+        type: BrickType.RoundBrick2x2,
+      },
     },
   }),
   actions: {
@@ -44,6 +55,15 @@ Dusk.initLogic({
     deselectBrick: ({ brickId }, { game, playerId }) => {
       if (game.bricks[brickId].controlledBy === playerId) {
         delete game.bricks[brickId].controlledBy
+      }
+    },
+    addBrick: ({ brickType }, { game, playerId }) => {
+      const brickId = Object.keys(game.bricks).length
+      game.bricks[brickId] = {
+        position: [0, 0, 0],
+        color: "yellow",
+        type: brickType,
+        controlledBy: playerId,
       }
     },
   },
