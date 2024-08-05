@@ -1,0 +1,53 @@
+{
+  "name": "melancia-game",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "typecheck": "tsc --noEmit",
+    "build": "npm run lint && tsc && vite build",
+    "upload": "npx rune-games-cli@latest upload",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@dimforge/rapier2d-compat": "^0.12.0",
+    "@fontsource/bangers": "^5.0.19",
+    "@pixi/react": "^7.1.1",
+    "clsx": "^2.1.1",
+    "dusk-games-sdk": "^4.20.0",
+    "immer": "^10.0.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "seed-random": "^2.2.0",
+    "timeline-composer": "^0.1.7",
+    "tunnel-rat": "^0.1.2",
+    "vite-plugin-dusk": "^1.0.1",
+    "zustand": "^4.5.2"
+  },
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^4.3.0",
+    "@types/node": "^20.11.26",
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "@types/seed-random": "^2.2.4",
+    "@typescript-eslint/eslint-plugin": "^5.57.1",
+    "@typescript-eslint/parser": "^5.57.1",
+    "@vitejs/plugin-react": "^4.0.0",
+    "autoprefixer": "^10.4.18",
+    "eslint": "7.22.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.3.4",
+    "eslint-plugin-rune": "^0.2.2",
+    "postcss": "^8.4.35",
+    "prettier": "^3.2.5",
+    "prettier-plugin-tailwindcss": "^0.5.12",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.0.2",
+    "vite": "^4.3.2",
+    "vite-plugin-qrcode": "^0.2.2",
+    "vite-plugin-top-level-await": "^1.4.1",
+    "vite-plugin-wasm": "^3.3.0"
+  }
+}
