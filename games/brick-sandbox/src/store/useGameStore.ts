@@ -17,6 +17,7 @@ export const useGameStore = create<State>()(
       game: {
         playerIds: [],
         bricks: {},
+        selectedBrickIds: {},
       },
     }))
   )

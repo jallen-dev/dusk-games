@@ -6,7 +6,7 @@ Command: npx gltfjsx@6.4.1 round-lq-brick-2x2.glb -t
 import * as THREE from "three"
 import { useGLTF } from "@react-three/drei"
 import { GLTF } from "three-stdlib"
-import { BrickType } from "@/types"
+import { BrickType, Color } from "@/types"
 
 type GLTFResult = GLTF & {
   nodes: Record<string, THREE.Mesh>
@@ -18,14 +18,18 @@ type GLTFResult = GLTF & {
 export function Brick(
   props: JSX.IntrinsicElements["group"] & {
     brickType: BrickType
-    color?: string
+    color?: Color
   }
 ) {
   const { nodes } = useGLTF(`/${BRICKS[props.brickType]}.glb`) as GLTFResult
   return (
     <group {...props} dispose={null}>
       <mesh geometry={nodes[`${BRICKS[props.brickType]}_1`].geometry}>
-        <meshStandardMaterial color={props.color ?? "yellow"} />
+        <meshStandardMaterial
+          color={
+            props.color !== undefined ? COLOR_NAMES[props.color] : "yellow"
+          }
+        />
       </mesh>
     </group>
   )
@@ -46,4 +50,11 @@ const BRICKS: Record<BrickType, string> = {
 
 for (const filename of Object.values(BRICKS)) {
   useGLTF.preload(`/${filename}.glb`)
+}
+
+const COLOR_NAMES: Record<Color, string> = {
+  [Color.Red]: "red",
+  [Color.Green]: "green",
+  [Color.Blue]: "blue",
+  [Color.Yellow]: "yellow",
 }

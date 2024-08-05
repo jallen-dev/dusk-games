@@ -9,6 +9,7 @@ import { useGameStore } from "./store/useGameStore.ts"
 import { Brick as BrickModel } from "@/components/Brick.tsx"
 import { Avatar } from "./components/Avatar.tsx"
 import { BrickList } from "./components/BrickList.tsx"
+import { ColorPicker } from "./components/ColorPicker.tsx"
 
 function App() {
   useEffect(() => {
@@ -29,7 +30,41 @@ function App() {
         <directionalLight position={[0, 10, 5]} intensity={1} />
       </Canvas>
       <BrickList />
+      <div className="absolute top-0 left-0 p-4">
+        <SelectedBrickColorPicker />
+      </div>
     </>
+  )
+}
+
+function SelectedBrickColorPicker() {
+  const yourPlayerId = useGameStore((state) => state.yourPlayerId)
+  const selectedBrickIds = useGameStore(
+    (state) => state.game.selectedBrickIds[yourPlayerId ?? ""]
+  )
+  const selectedBrick = useGameStore(
+    (state) => state.game.bricks[selectedBrickIds ? selectedBrickIds[0] : ""]
+  )
+
+  if (!selectedBrick) {
+    return null
+  }
+
+  if (selectedBrickIds.length > 1) {
+    // TODO: Implement multiple brick selection
+    return <div>Multiple bricks selected</div>
+  }
+
+  return (
+    <ColorPicker
+      color={selectedBrick.color}
+      onColorSelected={(color) => {
+        Dusk.actions.changeBrickColor({
+          brickId: selectedBrickIds[0],
+          color,
+        })
+      }}
+    />
   )
 }
 
@@ -53,7 +88,7 @@ const Brick = memo(function Brick({ brickId }: { brickId: string }) {
   const start = () => setDragged(true)
   const end = () => setDragged(false)
   const missed = () => {
-    if (dragged) {
+    if (dragged || !active) {
       return
     }
     Dusk.actions.deselectBrick({ brickId })

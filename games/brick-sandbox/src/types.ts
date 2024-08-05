@@ -11,3 +11,10 @@ export enum BrickType {
   RoundBrick2x8,
   RoundBrickCorner,
 }
+
+export enum Color {
+  Red = 0,
+  Green,
+  Blue,
+  Yellow,
+}
